@@ -133,20 +133,20 @@ $(document).ready(function(){
 
             /*
              * The "peek" command is a request for the contents of
-             * some input element to be posted to the tuple space.
-             * jQuery has a method .val() that will get the content
-             *  of all sorts input elements; quite convenient!
+             * some element to be posted to the tuple space. If the element
+             * is an input, the data in that input field will be returned.
+			 * Otherwise, the raw HTML in the element will be returned.
              */
             case "peek":
               var elt = $(cmd.selector);  
 	      if (elt.size() > 0) {
-		  var val = elt.eq(0).val() || "";
+		  var val = elt.eq(0).val() || elt.eq(0).html() || "";
 	      } else {
 		  var val = "";
 	      }
               put({"tag": "peek", "ticket": cmd.ticket, "value": val});
               break;
-            }
+			}
 
             /*
              * All commands can come with an optional request for a
