@@ -47,13 +47,14 @@ def log(*msg):
     tbl.append(msg)
   _trace("log",unicode(tuple(msg)))
 
+# Note: Changed the 70 to 1000 because different log messages were being mixed. I believe this is a threading issue but I'm not sure how to fix it right now.
 def _trace(tag, *objs):
   with _log_lock:
     msg = "\n".join([ ("%s" % d) for d in objs ])
     out = ""
     for line in (msg + " ").splitlines():
-      for i in range(0,len(line),70):
-        out += "        " + line[i:i+70] + "\n"
+      for i in range(0,len(line),1000):
+        out += "        " + line[i:i+1000] + "\n"
     s = "%-4s %2d %s" % (tag, _me(), out[8:])
     lines = s.splitlines()
     if len(lines) > 10: lines = lines[:3] + ["..."]
@@ -133,6 +134,14 @@ def _find(pop, *patterns):
         if pop: _board_space.pop(number)
         return item
   return None
+  
+def flush():
+  with _board_cv:
+    _trace("flush")
+    while True:
+      item = _find(True, {})
+      if item == None: break
+      _trace("flushed", item)
 
 def take(*patterns):
   with _board_cv:
@@ -427,11 +436,11 @@ def peek(selector="body", clients=None):
 # you can use this to schedule events. Otherwise, it's just your basic
 # forking operation.
 
-def background(function, delay=0):
+def background(function, delay=0, *kargs,**kwargs):
   name = threading.current_thread().name
   def thunk():
     threading.current_thread().name = name
-    function()
+    function(*kargs,**kwargs)
   threading.Timer(delay, thunk).start()  
 
 def sleep(delay):
