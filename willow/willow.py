@@ -134,14 +134,6 @@ def _find(pop, *patterns):
         if pop: _board_space.pop(number)
         return item
   return None
-  
-def flush():
-  with _board_cv:
-    _trace("flush")
-    while True:
-      item = _find(True, {})
-      if item == None: break
-      _trace("flushed", item)
 
 def take(*patterns):
   with _board_cv:
@@ -169,6 +161,17 @@ def grab(*patterns):
     item = _find(True, *patterns)
     _trace("grub", item)
     return item
+  
+def graball(*patterns):
+  with _board_cv:
+    _trace("omnigrab", *patterns)
+    found = []
+    while True:
+      item = _find(True, *patterns)
+      if item == None: break
+      else: found.append(item)
+      _trace("omnigrub", item)
+    return found
 
 
 # THREAD POOL EXTENSION TO THE PYTHON TCP SERVER #####################
